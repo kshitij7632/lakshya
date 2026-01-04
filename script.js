@@ -1,4 +1,4 @@
-﻿
+
         // Mobile Navigation Toggle
         const navToggle = document.querySelector('.nav-toggle');
         const navClose = document.querySelector('.nav-close');
@@ -256,4 +256,28 @@ window.addEventListener('DOMContentLoaded',function(){
       faqEl.innerHTML=data.faq.map(function(f){return '<li>'+f.question+': '+f.answer+'</li>'}).join('');
     }
   }).catch(function(e){console.error('data.json load failed',e)});
+});
+// ===== DOWNLOADS DROPDOWN TOGGLE =====
+function toggleDropdown(button) {
+    const dropdownItem = button.parentElement;
+    const allDropdowns = document.querySelectorAll('.dropdown-item');
+    
+    // Close all other dropdowns
+    allDropdowns.forEach(item => {
+        if (item !== dropdownItem) {
+            item.classList.remove('active');
+        }
+    });
+    
+    // Toggle current dropdown
+    dropdownItem.classList.toggle('active');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.dropdown-item')) {
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('active');
+        });
+    }
 });
