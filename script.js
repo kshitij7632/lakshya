@@ -281,3 +281,53 @@ document.addEventListener('click', (e) => {
         });
     }
 });
+
+// ===== MOBILE-FRIENDLY PDF DOWNLOAD + PREVIEW HANDLER =====
+// On mobile: Download PDF AND open in browser for preview
+// On desktop: Download directly
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all download links in the downloads section
+    const downloadLinks = document.querySelectorAll('.downloads-section a[href$=".pdf"]');
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    downloadLinks.forEach(link => {
+        if (isMobile) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                const fileName = href.split('/').pop();
+                
+                // Step 1: Open PDF in new tab for preview
+                window.open(href, '_blank');
+                
+                // Step 2: Trigger download simultaneously
+                fetch(href)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        // Create download link
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                        
+                        // Clean up
+                        setTimeout(() => {
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                        }, 100);
+                    })
+                    .catch(err => {
+                        console.error('Download failed:', err);
+                        // Fallback: If download fails, at least the preview is open
+                    });
+            });
+        }
+        // On desktop: Keep download attribute for direct download (default browser behavior)
+    });
+});
